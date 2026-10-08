@@ -17,7 +17,7 @@
 #include <xf86drmMode.h>
 
 #ifndef DRM_DEVICE_PATH
-#define DRM_DEVICE_PATH "/dev/dri/card1"
+#define DRM_DEVICE_PATH "/dev/dri/card0"
 #endif
 
 namespace {
