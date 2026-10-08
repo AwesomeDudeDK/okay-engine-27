@@ -168,6 +168,9 @@ struct Surface::SurfaceImpl {
     uint32_t connectorId = 0;
     drmModeModeInfo mode{};
 
+    // No display connected: render offscreen and discard frames instead of erroring
+    bool headless = false;
+
     // GBM/EGL
     gbm_device* gbmDev = nullptr;
     gbm_surface* gbmSurf = nullptr;
@@ -225,51 +228,58 @@ void Surface::initialize() {
         }
     }
 
-    if (!_impl->conn) {
-        throw std::runtime_error("no connected DRM connector");
-    }
+    _impl->headless = !_impl->conn;
 
-    _impl->connectorId = _impl->conn->connector_id;
+    uint32_t w = static_cast<uint32_t>(_impl->cfg.width);
+    uint32_t h = static_cast<uint32_t>(_impl->cfg.height);
 
-    bool preferred = false;
-    for (int i = 0; i < _impl->conn->count_modes; ++i) {
-        const drmModeModeInfo& m = _impl->conn->modes[i];
-        if (m.type & DRM_MODE_TYPE_PREFERRED) {
-            _impl->mode = m;
-            preferred = true;
-            break;
+    if (_impl->headless) {
+        std::cout << "No display connected; rendering headless at " << w << "x" << h << std::endl;
+    } else {
+        _impl->connectorId = _impl->conn->connector_id;
+
+        bool preferred = false;
+        for (int i = 0; i < _impl->conn->count_modes; ++i) {
+            const drmModeModeInfo& m = _impl->conn->modes[i];
+            if (m.type & DRM_MODE_TYPE_PREFERRED) {
+                _impl->mode = m;
+                preferred = true;
+                break;
+            }
         }
-    }
-    if (!preferred) {
-        _impl->mode = _impl->conn->modes[0];
-    }
-
-    _impl->enc = _impl->conn->encoder_id ? drmModeGetEncoder(_impl->drmFd, _impl->conn->encoder_id)
-                                         : nullptr;
-
-    if (!_impl->enc) {
-        for (int i = 0; i < _impl->res->count_encoders && !_impl->enc; ++i) {
-            _impl->enc = drmModeGetEncoder(_impl->drmFd, _impl->res->encoders[i]);
+        if (!preferred) {
+            _impl->mode = _impl->conn->modes[0];
         }
-    }
 
-    if (!_impl->enc) {
-        throw std::runtime_error("no DRM encoder");
-    }
+        _impl->enc = _impl->conn->encoder_id
+                         ? drmModeGetEncoder(_impl->drmFd, _impl->conn->encoder_id)
+                         : nullptr;
 
-    _impl->crtcId = _impl->enc->crtc_id ? _impl->enc->crtc_id : _impl->res->crtcs[0];
-    _impl->origCrtc = drmModeGetCrtc(_impl->drmFd, _impl->crtcId);
+        if (!_impl->enc) {
+            for (int i = 0; i < _impl->res->count_encoders && !_impl->enc; ++i) {
+                _impl->enc = drmModeGetEncoder(_impl->drmFd, _impl->res->encoders[i]);
+            }
+        }
+
+        if (!_impl->enc) {
+            throw std::runtime_error("no DRM encoder");
+        }
+
+        _impl->crtcId = _impl->enc->crtc_id ? _impl->enc->crtc_id : _impl->res->crtcs[0];
+        _impl->origCrtc = drmModeGetCrtc(_impl->drmFd, _impl->crtcId);
+
+        w = _impl->mode.hdisplay;
+        h = _impl->mode.vdisplay;
+    }
 
     _impl->gbmDev = gbm_create_device(_impl->drmFd);
     if (!_impl->gbmDev) {
         throw std::runtime_error("gbm_create_device failed");
     }
 
-    const uint32_t w = _impl->mode.hdisplay;
-    const uint32_t h = _impl->mode.vdisplay;
-
-    _impl->gbmSurf = gbm_surface_create(
-        _impl->gbmDev, w, h, GBM_FORMAT_ARGB8888, GBM_BO_USE_SCANOUT | GBM_BO_USE_RENDERING);
+    const uint32_t usage =
+        _impl->headless ? GBM_BO_USE_RENDERING : (GBM_BO_USE_SCANOUT | GBM_BO_USE_RENDERING);
+    _impl->gbmSurf = gbm_surface_create(_impl->gbmDev, w, h, GBM_FORMAT_ARGB8888, usage);
 
     if (!_impl->gbmSurf) {
         throw std::runtime_error("gbm_surface_create failed");
@@ -341,6 +351,11 @@ void Surface::swapBuffers() {
     gbm_bo* next = gbm_surface_lock_front_buffer(_impl->gbmSurf);
     if (!next) {
         throw std::runtime_error("gbm_surface_lock_front_buffer failed");
+    }
+
+    if (_impl->headless) {
+        gbm_surface_release_buffer(_impl->gbmSurf, next);
+        return;
     }
 
     uint32_t fb = bo_to_fb(next, _impl->drmFd);
