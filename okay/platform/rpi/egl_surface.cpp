@@ -151,6 +151,21 @@ EGLConfig choose_config(EGLDisplay dpy, bool requestMSAA) {
     return nullptr;
 }
 
+void log_first_frame() {
+    static bool logged = false;
+    if (logged) {
+        return;
+    }
+    logged = true;
+
+    const int fd = open("/dev/kmsg", O_WRONLY | O_CLOEXEC);
+    if (fd >= 0) {
+        constexpr char msg[] = "okay: first frame\n";
+        write(fd, msg, sizeof(msg) - 1);
+        close(fd);
+    }
+}
+
 }  // namespace
 
 namespace okay {
@@ -355,6 +370,7 @@ void Surface::swapBuffers() {
 
     if (_impl->headless) {
         gbm_surface_release_buffer(_impl->gbmSurf, next);
+        log_first_frame();
         return;
     }
 
@@ -383,6 +399,8 @@ void Surface::swapBuffers() {
 
     _impl->frontBo = next;
     _impl->frontFb = fb;
+
+    log_first_frame();
 }
 
 void Surface::destroy() {
