@@ -228,9 +228,9 @@ target_link_libraries(okay_runtime PRIVATE ${PROJECT})
 
 # backwards compatability with older cmake, where there was no runtime
 # that owned the main() function
-set_target_properties(${PROJECT} PROPERTIES
-    LIBRARY_OUTPUT_NAME "game"
-)
+# set_target_properties(${PROJECT} PROPERTIES
+#     LIBRARY_OUTPUT_NAME "game"
+# )
 
 set_target_properties(okay_runtime PROPERTIES
     RUNTIME_OUTPUT_NAME "${PROJECT}"
