@@ -19,8 +19,7 @@ static void __exitSignal(int sig) {
 }
 
 std::string getLibDynamicName() {
-    return dynalo::to_native_name(
-        std::format("./game_dll/lib" OKAY_GAME_NAME "_{}", s_hotReloadCount));
+    return std::format("./game_dll/lib" OKAY_GAME_NAME "_{}.{}", s_hotReloadCount, dynalo::native::name::extension());
 };
 
 int main(int argc, char* args[]) {

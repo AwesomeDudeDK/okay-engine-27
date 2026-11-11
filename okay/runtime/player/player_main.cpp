@@ -17,7 +17,7 @@ static void __exitSignal(int sig) {
 extern "C" OKAY_IMPORT void create(okay::Game* game, int argc, char* args[]);
 
 int main(int argc, char* args[]) {
-    Runtime.logger.debug("Editor Runtime!");
+    Runtime.logger.debug("Player Runtime!");
 
     // attach an interrupt to exit the program on ctrl c
     std::signal(SIGINT, __exitSignal);
