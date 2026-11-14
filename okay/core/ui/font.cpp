@@ -149,7 +149,7 @@ FontManager::FontHandle FontManager::defaultFont() {
         AssetManager* am = Engine.systems.getSystemChecked<AssetManager>();
         _defaultFont = Option<FontHandle>::some(
             unwrapAssetResult(am->loadEngineAssetSync<FontManager::FontHandle>(
-                "fonts/ARIAL.ttf", FontLoadOptions{})));
+                "fonts/ARIAL.TTF", FontLoadOptions{})));
     }
     return _defaultFont.value();
 }

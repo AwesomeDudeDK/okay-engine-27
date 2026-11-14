@@ -9,6 +9,9 @@ namespace okay {
 
 TextLayout::TextLayout(std::string_view text, const TextStyle& style)
     : _text(text), _style(style), _fontManager(FontManager::instance()) {
+    if (!_fontManager.isLoadedFont(_style.font)) {
+        _style.font = _fontManager.defaultFont();
+    }
     measure();
 }
 
