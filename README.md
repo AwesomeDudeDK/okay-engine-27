@@ -40,7 +40,7 @@ Any text editor will work, an integrated development enviornment like Visual Stu
 1. Clone the `okay-engine` repo.
 
 ```bash
-git clone https://github.com/evan-bertis-sample/okay-engine.git --recursive
+git clone git@github.com:AwesomeDudeDK/okay-engine-27.git --recursive
 ```
 
 The recursive flag is important, as some needed libraries have been included as submodules.
@@ -49,7 +49,7 @@ The recursive flag is important, as some needed libraries have been included as 
 2. Install the `okay-engine` CLI. This essentially just adds an alias within your `.bashrc` to point to `okay.py`.
 
 ```bash
-cd okay-engine
+cd okay-engine-27
 source ./okay/scripts/install.bash
 ```
 
