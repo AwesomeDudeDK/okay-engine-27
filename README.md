@@ -4,19 +4,19 @@
 
 
 
-# okay-engine
+# okay-engine-27
 
-`okay-engine` is a lightweight game engine that targets Windows, and Linux (specifically the Raspberry Pi), and (somewhat) MacOS. It was primarily developed to power `Northwestern Formula Racing`'s dashboard for NFR26, which runs off of a headless Rapsiban OS. Check out that project [here.](https://github.com/NU-Formula-Racing/daq-dash-26)
+`okay-engine-27` is a lightweight game engine that targets Windows, Linux (specifically the Raspberry Pi), and MacOS. It is being developed to power `Northwestern Formula Racing`'s dashboard for NFR27, which runs off of a custom embedded Linux OS.
 
 It is built using OpenGL 3.0 ES and C++20. For MacOS, slight hackery is employed to use OpenGL 3.3, so support may vary.
 
-`okay-engine` is not intended to be a fully-featured game-engine, rather, it is an exercise of recreational programming and learning.
+`okay-engine-27` is not intended to be a fully-featured game-engine, rather, it is an exercise of recreational programming and learning.
 
 ## Installation
 
 ### Prerequistes
 
-Before installing `okay-engine` you must have:
+Before installing `okay-engine-27` you must have:
 * CMake, at least version 3.13
 * Ninja
 * Python 3 & pip
@@ -25,19 +25,19 @@ Before installing `okay-engine` you must have:
 
 A lot of the tooling (the shell scripts in `scripts/`) are designed with `bash` in mind, so please install that if you'd like to use those.
 
-Any text editor will work, an integrated development enviornment like Visual Studio is untested.
+Any text editor will work, an integrated development enviroment like Visual Studio is untested.
 
 ### Overview
 
-`okay-engine` is installed in a single location on your computer. With the installation, you get a few things:
+`okay-engine-27` is installed in a single location on your computer. With the installation, you get a few things:
 
-* The `okay-engine` core, which contains the all the C++ and build files needed to build an `okay-engine` game. This also includes dependencies like `glm` and `glfw` for your target platform.
-* The `okay-engine` CLI, which is a set of python scripts that are used for building, running, and packaging games
+* The `okay-engine-27` core, which contains the all the C++ and build files needed to build an `okay-engine-27` game. This also includes dependencies like `glm` and `glfw` for your target platform.
+* The `okay-engine-27` CLI, which is a set of python scripts that are used for building, running, and packaging games
 * The `okay` game, which is a test game you can build to test your installation.
 
 ### Steps
 
-1. Clone the `okay-engine` repo.
+1. Clone the `okay-engine-27` repo.
 
 ```bash
 git clone git@github.com:AwesomeDudeDK/okay-engine-27.git --recursive
@@ -50,12 +50,14 @@ The recursive flag is important, as some needed libraries have been included as 
 
 ```bash
 cd okay-engine-27
-source ./okay/scripts/install.bash
+bash ./okay/scripts/install.bash
 ```
 
 3. Try out the demo!
 
 ```bash
+cd proto/demo
+okay init # initialize the okay project. You only need to do this the first time.
 okay demo
 ```
 
